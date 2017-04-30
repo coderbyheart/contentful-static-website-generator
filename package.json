@@ -40,7 +40,7 @@
     "moment": "^2.18.1",
     "semantic-release": "^6.3.2",
     "showdown": "^1.6.4",
-    "standard": "^8.6.0",
+    "standard": "^10.0.2",
     "validate-commit-msg": "^2.10.1"
   },
   "files": [

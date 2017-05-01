@@ -99,7 +99,7 @@ const shortDate = date => moment(date).format('DD.MM.YYYY')
 const striptags = str => str.replace(/<[^>]+>/g, '')
 
 // This renders a page
-const buildPage = (build, config, collections, content, identifier, template, includesFiles) => {
+const buildPage = (build, config, collections, blocks, content, identifier, template, includesFiles) => {
   const includes = {}
   const page = {
     url: config.webHost + config.baseHref + identifier + '.html'
@@ -109,6 +109,7 @@ const buildPage = (build, config, collections, content, identifier, template, in
     config,
     content,
     collections,
+    blocks,
     includes,
     shortDate,
     striptags,
@@ -156,7 +157,7 @@ export const buildSite = (contentFile, templateDir, version, locale, environment
     config[key] = process.env[`CONFIG_${key.toUpperCase()}`] || c.fields.value[build.locale]
   })
 
-// Build collections
+  // Build collections
   const collections = {}
   content.entries.filter(e => e.sys.contentType.sys.id === 'collection').map(c => {
     collections[c.fields.title[build.locale]] = c.fields.items[build.locale].map(e => {
@@ -165,28 +166,34 @@ export const buildSite = (contentFile, templateDir, version, locale, environment
     })
   })
 
+  // Build blocks
+  const blocks = {}
+  content.entries.filter(e => e.sys.contentType.sys.id === 'block').map(b => {
+    blocks[b.fields.identifier[build.locale]] = markdownConverter.makeHtml(b.fields.content[build.locale])
+  })
+
   // Posts
   const posts = content.entries.filter(e => isPost(e))
     .map(post => {
       const content = buildPostContent(post, build.locale)
-      return buildPage(build, config, collections, content, content.slug, path.join(templateDir, '/post.html'), includesFiles)
+      return buildPage(build, config, collections, blocks, content, content.slug, path.join(templateDir, '/post.html'), includesFiles)
     })
 
   // Authors
   content.entries.filter(e => isAuthor(e))
     .map(page => {
       const content = buildAuthorContent(page, build.locale)
-      buildPage(build, config, collections, content, content.slug, path.join(templateDir, '/author.html'), includesFiles)
+      buildPage(build, config, collections, blocks, content, content.slug, path.join(templateDir, '/author.html'), includesFiles)
     })
 
   // Pages
   content.entries.filter(e => isPage(e))
     .map(page => {
       const content = buildPageContent(page, build.locale)
-      buildPage(build, config, collections, content, content.slug, path.join(templateDir, '/page.html'), includesFiles)
+      buildPage(build, config, collections, blocks, content, content.slug, path.join(templateDir, '/page.html'), includesFiles)
     })
 
   // Index
-  buildPage(build, config, collections, {posts}, 'index', path.join(templateDir, '/index.html'), includesFiles)
+  buildPage(build, config, collections, blocks, {posts}, 'index', path.join(templateDir, '/index.html'), includesFiles)
 }
 

@@ -2,7 +2,7 @@
 
 import { Converter } from 'showdown'
 import { sync as globSync } from 'glob'
-import { readFileSync, writeFileSync } from 'fs'
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { template } from 'lodash'
 import path from 'path'
 import moment from 'moment'
@@ -99,37 +99,50 @@ const shortDate = date => moment(date).format('DD.MM.YYYY')
 const striptags = str => str.replace(/<[^>]+>/g, '')
 
 // This renders a page
-const buildPage = (build, config, collections, blocks, content, identifier, template, includesFiles) => {
-  const includes = {}
+const buildPage = (build, config, collections, blocks, content, identifier, template, includesFiles, translatedStrings) => {
+  const isIndex = identifier === 'index'
   const page = {
-    url: config.webHost + config.baseHref + identifier + '.html'
+    url: config.webHost + config.baseHref + (isIndex ? '' : identifier) + '/'
   }
+
+  const include = name => buildTemplate(includesFiles[name], templateData)
+
+  const t = (template, params) => {
+    let result = translatedStrings[template] || template
+    if (params) {
+      Object.keys(params).forEach(k => {
+        result = result.replace('${' + k + '}', params[k])
+      })
+    }
+    return result
+  }
+
   const templateData = {
     build: Object.assign({identifier}, build),
     config,
     content,
     collections,
     blocks,
-    includes,
+    include,
     shortDate,
     striptags,
+    t,
     page
   }
-
-  // Build includes
-  Object.keys(includesFiles).forEach(k => {
-    includes[k] = buildTemplate(includesFiles[k], templateData)
-  })
 
   // Build page
   const pageTemplate = buildTemplate(readFileSync(template, 'utf8'), templateData)
 
   // Build pages
-  writeFileSync(`build/${identifier}.html`, pageTemplate)
-
-  // Done
-  console.log(`build/${identifier}.html`)
-
+  if (isIndex) {
+    writeFileSync(`build/${identifier}.html`, pageTemplate)
+    console.log(`build/${identifier}.html`)
+  } else {
+    const dir = `build/${identifier}/`
+    if (!existsSync(dir)) mkdirSync(dir)
+    writeFileSync(`build/${identifier}/index.html`, pageTemplate)
+    console.log(`build/${identifier}/index.html`)
+  }
   return templateData
 }
 
@@ -157,6 +170,16 @@ export const buildSite = (contentFile, templateDir, version, locale, environment
     config[key] = process.env[`CONFIG_${key.toUpperCase()}`] || c.fields.value[build.locale]
   })
 
+  // Load localized strings
+  const translatedStrings = {}
+  const localeFile = path.join(templateDir, '/locale/', config.lang + '.json')
+  if (existsSync(localeFile)) {
+    const localeStrings = JSON.parse(readFileSync(localeFile, 'utf-8'))
+    Object.keys(localeStrings).forEach(k => {
+      translatedStrings[k] = localeStrings[k]
+    })
+  }
+
   // Build collections
   const collections = {}
   content.entries.filter(e => e.sys.contentType.sys.id === 'collection').map(c => {
@@ -176,24 +199,24 @@ export const buildSite = (contentFile, templateDir, version, locale, environment
   const posts = content.entries.filter(e => isPost(e))
     .map(post => {
       const content = buildPostContent(post, build.locale)
-      return buildPage(build, config, collections, blocks, content, content.slug, path.join(templateDir, '/post.html'), includesFiles)
+      return buildPage(build, config, collections, blocks, content, content.slug, path.join(templateDir, '/post.html'), includesFiles, translatedStrings)
     })
 
   // Authors
   content.entries.filter(e => isAuthor(e))
     .map(page => {
       const content = buildAuthorContent(page, build.locale)
-      buildPage(build, config, collections, blocks, content, content.slug, path.join(templateDir, '/author.html'), includesFiles)
+      buildPage(build, config, collections, blocks, content, content.slug, path.join(templateDir, '/author.html'), includesFiles, translatedStrings)
     })
 
   // Pages
   content.entries.filter(e => isPage(e))
     .map(page => {
       const content = buildPageContent(page, build.locale)
-      buildPage(build, config, collections, blocks, content, content.slug, path.join(templateDir, '/page.html'), includesFiles)
+      buildPage(build, config, collections, blocks, content, content.slug, path.join(templateDir, '/page.html'), includesFiles, translatedStrings)
     })
 
   // Index
-  buildPage(build, config, collections, blocks, {posts}, 'index', path.join(templateDir, '/index.html'), includesFiles)
+  buildPage(build, config, collections, blocks, {posts}, 'index', path.join(templateDir, '/index.html'), includesFiles, translatedStrings)
 }
 

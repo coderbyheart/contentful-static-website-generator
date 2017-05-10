@@ -5,9 +5,10 @@ cache:
 notifications:
   email: false
 node_js: node
+before_install:
+- npm i -g npm5@latest
 script:
 - npm run lint
-- make dist
 after_success:
 - npm run semantic-release
 branches:

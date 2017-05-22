@@ -6,6 +6,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { template } from 'lodash'
 import path from 'path'
 import moment from 'moment'
+import { minify } from 'html-minifier'
 
 const markdownConverter = new Converter({
   simplifiedAutoLink: true,
@@ -131,7 +132,18 @@ const buildPage = (build, config, collections, blocks, content, identifier, temp
   }
 
   // Build page
-  const pageTemplate = buildTemplate(readFileSync(template, 'utf8'), templateData)
+  let pageTemplate = buildTemplate(readFileSync(template, 'utf8'), templateData)
+  if (config.minify) {
+    pageTemplate = minify(pageTemplate, {
+      removeAttributeQuotes: true,
+      decodeEntities: true,
+      removeComments: true,
+      removeEmptyAttributes: true,
+      collapseWhitespace: true,
+      conservativeCollapse: true,
+      collapseInlineTagWhitespace: true
+    })
+  }
 
   // Build pages
   if (isIndex) {
@@ -146,7 +158,7 @@ const buildPage = (build, config, collections, blocks, content, identifier, temp
   return templateData
 }
 
-export const buildSite = (contentFile, templateDir, version, locale, environment = 'production') => {
+export const buildSite = (contentFile, templateDir, version, locale, environment = 'production', minify = true) => {
   const content = JSON.parse(readFileSync(contentFile, 'utf-8'))
 
   // Find includes
@@ -160,7 +172,8 @@ export const buildSite = (contentFile, templateDir, version, locale, environment
     environment,
     version,
     time: Date.now(),
-    locale
+    locale,
+    minify
   }
 
   // Build the config

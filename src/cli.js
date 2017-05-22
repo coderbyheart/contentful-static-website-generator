@@ -23,6 +23,7 @@ program
   .option('-l, --locale <locale>', 'contentful locale')
   .option('-t, --templates <templates>', 'template directory')
   .option('-e, --environment [environment]', 'environment', 'production')
-  .action(options => buildSite(options.content, options.templates, options.version, options.locale, options.environment))
+  .option('-m, --minify', 'minify output', false)
+  .action(options => buildSite(options.content, options.templates, options.version, options.locale, options.environment, options.minify))
 
 program.parse(process.argv)

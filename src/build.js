@@ -231,5 +231,8 @@ export const buildSite = (contentFile, templateDir, version, locale, environment
 
   // Index
   buildPage(build, config, collections, blocks, {posts}, 'index', path.join(templateDir, '/index.html'), includesFiles, translatedStrings)
+
+  // Archive
+  buildPage(build, config, collections, blocks, {posts}, 'archive', path.join(templateDir, '/archive.html'), includesFiles, translatedStrings)
 }
 

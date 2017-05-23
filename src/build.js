@@ -133,7 +133,7 @@ const buildPage = (build, config, collections, blocks, content, identifier, temp
 
   // Build page
   let pageTemplate = buildTemplate(readFileSync(template, 'utf8'), templateData)
-  if (config.minify) {
+  if (build.minify) {
     pageTemplate = minify(pageTemplate, {
       removeAttributeQuotes: true,
       decodeEntities: true,
@@ -158,7 +158,7 @@ const buildPage = (build, config, collections, blocks, content, identifier, temp
   return templateData
 }
 
-export const buildSite = (contentFile, templateDir, version, locale, environment = 'production', minify = true) => {
+export const buildSite = (contentFile, templateDir, version, locale, environment = 'production', minify = false) => {
   const content = JSON.parse(readFileSync(contentFile, 'utf-8'))
 
   // Find includes

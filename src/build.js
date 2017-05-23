@@ -46,6 +46,7 @@ const buildPostContent = (post, locale) => {
       case 'hero':
         content[k] = {
           title: post.fields[k][locale].fields.title[locale],
+          description: post.fields[k][locale].fields.description ? markdownConverter.makeHtml(post.fields[k][locale].fields.description[locale]) : undefined,
           file: post.fields[k][locale].fields.file[locale]
         }
         break
@@ -72,6 +73,7 @@ const buildAuthorContent = (author, locale) => {
       case 'photo':
         content[k] = {
           title: author.fields[k][locale].fields.title[locale],
+          description: author.fields[k][locale].fields.description ? markdownConverter.makeHtml(author.fields[k][locale].fields.description[locale]) : undefined,
           file: author.fields[k][locale].fields.file[locale]
         }
         break

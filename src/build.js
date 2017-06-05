@@ -104,6 +104,7 @@ const striptags = str => str.replace(/<[^>]+>/g, '')
 // This renders a page
 const buildPage = (build, config, collections, blocks, content, identifier, template, includesFiles, translatedStrings) => {
   const isIndex = identifier === 'index'
+  const isFeed = identifier === 'feed'
   const page = {
     url: config.webHost + config.baseHref + (isIndex ? '' : identifier) + '/'
   }
@@ -151,6 +152,9 @@ const buildPage = (build, config, collections, blocks, content, identifier, temp
   if (isIndex) {
     writeFileSync(`build/${identifier}.html`, pageTemplate)
     console.log(`build/${identifier}.html`)
+  } else if (isFeed) {
+    writeFileSync(`build/${identifier}.xml`, pageTemplate)
+    console.log(`build/${identifier}.xml`)
   } else {
     const dir = `build/${identifier}/`
     if (!existsSync(dir)) mkdirSync(dir)
@@ -236,5 +240,8 @@ export const buildSite = (contentFile, templateDir, version, locale, environment
 
   // Archive
   buildPage(build, config, collections, blocks, {posts}, 'archive', path.join(templateDir, '/archive.html'), includesFiles, translatedStrings)
+
+  // feed.xml
+  buildPage(build, config, collections, blocks, {posts}, 'feed', path.join(templateDir, '/feed.xml'), includesFiles, translatedStrings)
 }
 

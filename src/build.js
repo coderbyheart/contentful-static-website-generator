@@ -105,6 +105,7 @@ const striptags = str => str.replace(/<[^>]+>/g, '')
 const buildPage = (build, config, collections, blocks, content, identifier, template, includesFiles, translatedStrings) => {
   const isIndex = identifier === 'index'
   const isFeed = identifier === 'feed'
+  if (isFeed) build.minify = false
   const page = {
     url: config.webHost + config.baseHref + (isIndex ? '' : identifier) + '/'
   }

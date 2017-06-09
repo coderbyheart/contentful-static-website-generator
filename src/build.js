@@ -107,7 +107,7 @@ const buildPage = (build, config, collections, blocks, content, identifier, temp
   const isFeed = identifier === 'feed'
   if (isFeed) build.minify = false
   const page = {
-    url: config.webHost + config.baseHref + (isIndex ? '' : identifier) + '/'
+    url: config.webHost + config.baseHref + (isIndex ? '' : identifier + '/')
   }
 
   const include = name => buildTemplate(includesFiles[name], templateData)

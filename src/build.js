@@ -178,7 +178,6 @@ export const buildSite = (contentFile, templateDir, version, locale, environment
   const build = {
     environment,
     version,
-    time: Date.now(),
     locale,
     minify
   }

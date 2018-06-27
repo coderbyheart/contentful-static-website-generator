@@ -24,7 +24,7 @@ const buildTemplate = (templateString, data, step) => {
     return templateString
   }
   const previousResult = templateString
-  const result = template(templateString)(data)
+  const result = template(templateString, {interpolate: /<%=([\s\S]+?)%>/g})(data)
   if (result === previousResult) {
     return result
   }

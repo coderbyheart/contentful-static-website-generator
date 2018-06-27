@@ -244,4 +244,3 @@ export const buildSite = (contentFile, templateDir, version, locale, environment
   // feed.xml
   buildPage(build, config, collections, blocks, {posts}, 'feed', path.join(templateDir, '/feed.xml'), includesFiles, translatedStrings)
 }
-

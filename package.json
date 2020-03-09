@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/coderbyheart/contentful-static-website-generator#readme",
   "dependencies": {
-    "commander": "^2.9.0",
+    "commander": "^4.1.1",
     "contentful": "^4.1.2",
     "glob": "^7.1.1",
     "html-minifier": "^3.5.1",

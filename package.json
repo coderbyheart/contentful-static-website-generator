@@ -36,7 +36,7 @@
     "html-minifier": "^3.5.1",
     "moment": "^2.18.1",
     "showdown": "^1.9.1",
-    "snyk": "^1.316.1"
+    "snyk": "^1.316.2"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
